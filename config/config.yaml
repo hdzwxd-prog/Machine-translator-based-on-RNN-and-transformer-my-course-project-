@@ -1,0 +1,70 @@
+# 数据配置
+data:
+  data_dir: "/home/test/fxdproject/NLP_project/AP0004_MidtermFinal_translation_dataset_zh_en"
+  train_file: "train_100k.jsonl"
+  valid_file: "valid.jsonl"
+  test_file: "test.jsonl"
+  source_lang: "zh"
+  target_lang: "en"
+  max_length: 100  # 最大句子长度
+  min_freq: 2      # 最小词频
+  max_vocab_size: 50000  # 最大词汇表大小
+
+# 模型配置（适配双A6000 GPU，48GB显存）
+model:
+  type: "rnn"  # rnn 或 transformer
+  encoder:
+    embed_dim: 512  # 嵌入维度
+    hidden_dim: 512  # 隐藏层维度（A6000可支持更大，如1024）
+    num_layers: 2
+    dropout: 0.3
+    bidirectional: false
+  decoder:
+    embed_dim: 512  # 嵌入维度
+    hidden_dim: 512  # 隐藏层维度
+    num_layers: 2
+    dropout: 0.3
+  attention:
+    type: "dot"  # dot, general, additive
+    hidden_dim: 512  # 注意力隐藏维度（与decoder保持一致）
+  cell_type: "lstm"  # lstm 或 gru
+
+# 训练配置（适配双A6000 GPU）
+training:
+  batch_size: 256  # 单卡batch_size（分布式总batch_size=256）
+  num_epochs: 80  # 训练轮数
+  learning_rate: 0.01
+  lr_scheduler: "cosine_warm_restarts"  # 学习率调度器：none, step, cosine, exponential, cosine_warm_restarts
+  lr_step_size: 3  # StepLR的步长
+  lr_gamma: 0.5  # StepLR/ExponentialLR的衰减率
+  grad_clip: 5.0
+  teacher_forcing_ratio: 0.5  # Teacher Forcing 比例
+  early_stopping_patience: 5
+  save_dir: "checkpoints"
+  log_interval: 40  # 更频繁的日志输出
+  eval_interval: 40  # 训练中评估频率（每多少个batch评估一次）
+  plot_interval: 40  # 画图更新频率（每多少个batch更新一次图表）
+  # 多GPU和混合精度配置
+  use_ddp: true  # 启用分布式训练
+  use_amp: true  # 启用混合精度训练
+  num_workers: 8  # 数据加载工作进程数
+  pin_memory: true  # 固定内存，加速数据传输
+  # 检查点恢复配置
+  resume_from_checkpoint: false  # 是否从checkpoint恢复（如果配置匹配）
+  resume_ask_user: false  # 是否询问用户（false=自动，true=交互式）
+
+# 解码配置
+decoding:
+  strategy: "beam_search"  # greedy 或 beam_search
+  beam_size: 5
+  max_length: 100
+  length_penalty: 0.6
+
+# 设备配置
+device: "cuda"  # cuda 或 cpu
+world_size: 2  # GPU数量（A6000 x2）
+dist_backend: "nccl"  # 分布式后端
+
+# 随机种子
+seed: 42
+

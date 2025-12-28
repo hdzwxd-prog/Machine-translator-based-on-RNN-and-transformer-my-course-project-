@@ -1,0 +1,53 @@
+# T5预训练模型微调配置文件
+data:
+  data_dir: "/home/test/fxdproject/NLP_project/AP0004_MidtermFinal_translation_dataset_zh_en"
+  train_file: "train_100k.jsonl"
+  valid_file: "valid.jsonl"
+  test_file: "test.jsonl"
+  source_lang: "zh"
+  target_lang: "en"
+  max_length: 100
+  min_freq: 2
+  max_vocab_size: 50000
+
+# T5模型配置
+model:
+  type: "t5"  # t5模型
+  model_name: "t5-small"  # t5-small, t5-base, t5-large (注意：t5-base和t5-large需要更多内存)
+  max_length: 512  # T5的最大序列长度
+
+# 训练配置（注意内存使用）
+training:
+  batch_size: 16  # T5模型较大，减小batch_size
+  num_epochs: 10  # 预训练模型通常需要较少的epoch
+  learning_rate: 0.00001  # 微调时使用较小的学习率
+  lr_scheduler: "cosine"
+  lr_step_size: 3
+  lr_gamma: 0.5
+  grad_clip: 1.0
+  teacher_forcing_ratio: 1.0  # T5总是使用teacher forcing
+  early_stopping_patience: 3
+  save_dir: "checkpoints_t5"
+  log_interval: 10
+  eval_interval: 10
+  plot_interval: 10
+  use_ddp: false  # 暂时禁用分布式训练
+  use_amp: true  # 启用混合精度训练
+  num_workers: 2  # 减少数据加载进程数
+  pin_memory: true
+  resume_from_checkpoint: false
+  resume_ask_user: false
+
+# 解码配置
+decoding:
+  strategy: "beam_search"
+  beam_size: 5
+  max_length: 100
+  length_penalty: 0.6
+
+# 设备配置
+device: "cuda"
+world_size: 1
+dist_backend: "nccl"
+seed: 42
+

@@ -1,0 +1,93 @@
+[INFO] 使用交互式后端（TkAgg），图表将显示在窗口中
+================================================================================
+Loss诊断分析
+================================================================================
+
+使用设备: cuda:1
+
+准备数据...
+================================================================================
+数据准备阶段
+================================================================================
+
+发现预处理缓存 (key: e7e6186d...)
+
+从缓存加载预处理数据: cache/e7e6186dc7d370085e1317692b905756.pkl
+缓存加载成功:
+  训练集: 99946 个样本
+  验证集: 500 个样本
+  源语言词汇表: 34103 个词
+  目标语言词汇表: 28625 个词
+
+创建数据集...
+
+构建模型...
+
+================================================================================
+模型构建阶段
+================================================================================
+
+模型类型: Transformer
+  编码器: 6层, d_model=512, num_heads=8, d_ff=2048
+  解码器: 6层, d_model=512, num_heads=8, d_ff=2048
+  位置编码: absolute
+  归一化方法: layernorm
+
+总参数数量: 90,939,857
+可训练参数数量: 90,939,857
+
+加载checkpoint: checkpoints_transformer/best_model.pt
+Checkpoint epoch: 16
+Checkpoint valid loss: 0.000252
+
+================================================================================
+获取验证batch并计算loss
+================================================================================
+
+Batch信息:
+  src形状: torch.Size([32, 64])
+  tgt形状: torch.Size([32, 82])
+  src_lengths: [24, 8, 29, 61, 37, 11, 32, 12, 16, 26, 31, 35, 31, 24, 33, 26, 45, 31, 36, 26, 29, 18, 31, 46, 47, 56, 64, 26, 55, 51, 43, 41]
+  tgt_lengths: [32, 10, 34, 65, 40, 15, 38, 17, 20, 33, 37, 36, 31, 30, 41, 30, 46, 36, 44, 33, 33, 24, 38, 54, 48, 64, 82, 24, 56, 64, 51, 51]
+
+掩码信息:
+  src_mask形状: torch.Size([32, 64])
+  tgt_mask形状: torch.Size([32, 82])
+  src_mask非零元素数: 1081
+  tgt_mask非零元素数: 1257
+
+================================================================================
+前向传播
+================================================================================
+
+模型输出:
+  outputs形状: torch.Size([32, 81, 28625])
+  outputs范围: min=-19.6952, max=40.7994, mean=-0.4885
+
+展平后:
+  outputs_flat形状: torch.Size([2592, 28625])
+  tgt_flat形状: torch.Size([2592])
+  tgt_flat中PAD的数量: 1367
+  tgt_flat中非PAD的数量: 1225
+
+总体Loss: 0.000009
+
+================================================================================
+详细分析每个样本
+================================================================================
+
+样本 1:
+--------------------------------------------------------------------------------
+源句子: 上周 , <unk> 《 <unk> 私房 菜 》 临时 <unk> , 意外 引发 了 关于 国产 剧 收视率 造假 的 热烈 讨论 .
+真值: last week , the broadcast of period drama “ beauty private kitchen ” was temporarily halted , and accidentally triggered heated debate about <unk> ratings of locally produced dramas .
+预测: last week , the broadcast of period drama “ beauty private kitchen ” was temporarily halted , and accidentally triggered heated debate about <unk> ratings of locally produced dramas .
+样本Loss: 0.000019
+
+  时间步分析:
+  实际目标长度: 32
+Traceback (most recent call last):
+  File "/home/test/fxdproject/NLP_project/diagnose_loss.py", line 269, in <module>
+    diagnose_loss()
+  File "/home/test/fxdproject/NLP_project/diagnose_loss.py", line 173, in diagnose_loss
+    tgt_token_idx.unsqueeze(0),
+AttributeError: 'int' object has no attribute 'unsqueeze'

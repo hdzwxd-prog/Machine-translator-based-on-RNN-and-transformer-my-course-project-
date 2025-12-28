@@ -1,0 +1,81 @@
+# Transformer模型配置文件
+# 数据配置（与RNN共享）
+data:
+  data_dir: "/home/test/fxdproject/NLP_project/AP0004_MidtermFinal_translation_dataset_zh_en"
+  train_file: "train_100k.jsonl"
+  valid_file: "valid.jsonl"
+  test_file: "test.jsonl"
+  source_lang: "zh"
+  target_lang: "en"
+  max_length: 100  # 最大句子长度
+  min_freq: 2      # 最小词频
+  max_vocab_size: 50000  # 最大词汇表大小
+
+# Transformer模型配置
+model:
+  type: "transformer"  # transformer 或 rnn
+  # 位置编码方案：absolute（绝对位置编码）或 relative（相对位置编码）
+  pos_encoding_type: "absolute"  # absolute, relative
+  # 归一化方法：layernorm（层归一化）或 rmsnorm（均方根归一化）
+  norm_type: "layernorm"  # layernorm, rmsnorm
+  # 是否使用相对位置编码（仅在pos_encoding_type=relative时有效）
+  use_relative_pos: false
+  
+  encoder:
+    d_model: 512  # 模型维度
+    num_heads: 8  # 注意力头数
+    num_layers: 6  # 编码器层数
+    d_ff: 2048  # 前馈网络隐藏层维度（通常是d_model的4倍）
+    dropout: 0.1
+    max_len: 5000  # 最大序列长度（用于位置编码）
+  
+  decoder:
+    d_model: 512  # 模型维度（必须与encoder相同）
+    num_heads: 8  # 注意力头数
+    num_layers: 6  # 解码器层数
+    d_ff: 2048  # 前馈网络隐藏层维度
+    dropout: 0.1
+    max_len: 5000  # 最大序列长度
+
+# 训练配置（注意内存使用，当前GPU正在训练RNN）
+training:
+  batch_size: 32  # 减小batch_size以节省内存（Transformer通常需要更多内存）
+  num_epochs: 30  # 训练轮数
+  learning_rate: 0.0001  # Transformer通常需要较小的学习率
+  lr_scheduler: "cosine"  # 学习率调度器：none, step, cosine, exponential, cosine_warm_restarts
+  lr_step_size: 3
+  lr_gamma: 0.5
+  grad_clip: 1.0  # Transformer通常需要梯度裁剪
+  teacher_forcing_ratio: 1.0  # Transformer通常使用teacher forcing
+  early_stopping_patience: 5
+  save_dir: "checkpoints_transformer"  # 使用不同的checkpoint目录
+  log_interval: 20
+  eval_interval: 20
+  plot_interval: 20
+  # 多GPU和混合精度配置
+  use_ddp: false  # 暂时禁用分布式训练，避免与RNN训练冲突
+  use_amp: true  # 启用混合精度训练以节省内存
+  num_workers: 4  # 减少数据加载进程数
+  pin_memory: true
+  # 检查点恢复配置
+  resume_from_checkpoint: false
+  resume_ask_user: false
+  # 数据预处理缓存配置
+  use_data_cache: true  # 是否使用数据预处理缓存（默认true，可显著加快启动速度）
+
+# 解码配置
+decoding:
+  strategy: "beam_search"  # greedy 或 beam_search
+  beam_size: 5
+  max_length: 100
+  length_penalty: 0.6
+
+# 设备配置
+device: "cuda:1"  # cuda, cuda:0, cuda:1 或 cpu（指定使用GPU 1避免与RNN训练冲突）
+gpu_id: 1  # GPU ID（如果device是"cuda"时使用此值，否则忽略）
+world_size: 1  # 单GPU训练（避免与RNN训练冲突）
+dist_backend: "nccl"
+
+# 随机种子
+seed: 42
+

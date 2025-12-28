@@ -1,0 +1,71 @@
+# ============================================================================
+# 调试配置文件 (Debug Configuration)
+# ============================================================================
+# 用途：快速测试训练流程，调试代码问题
+# 特点：小数据集、小模型、快速迭代、详细日志
+# 使用方法：python train.py --config config/config_debug.yaml
+# ============================================================================
+
+# 数据配置
+data:
+  data_dir: "/home/test/fxdproject/NLP_project/AP0004_MidtermFinal_translation_dataset_zh_en"
+  train_file: "train_10k.jsonl"  # 使用10k数据集，快速测试（调试用）
+  valid_file: "valid.jsonl"
+  test_file: "test.jsonl"
+  source_lang: "zh"
+  target_lang: "en"
+  max_length: 50  # 减小最大长度，加快处理速度（调试用）
+  min_freq: 1      # 降低词频阈值，保留更多词（调试用）
+  max_vocab_size: 10000  # 减小词汇表大小，加快训练（调试用）
+
+# 模型配置
+model:
+  type: "rnn"  # rnn 或 transformer
+  encoder:
+    embed_dim: 128  # 小模型，快速训练（调试用）
+    hidden_dim: 256  # 小模型，快速训练（调试用）
+    num_layers: 2
+    dropout: 0.3
+    bidirectional: false
+  decoder:
+    embed_dim: 128  # 小模型，快速训练（调试用）
+    hidden_dim: 256  # 小模型，快速训练（调试用）
+    num_layers: 2
+    dropout: 0.3
+  attention:
+    type: "dot"  # dot, general, additive
+    hidden_dim: 256
+  cell_type: "lstm"  # lstm 或 gru
+
+# 训练配置
+training:
+  batch_size: 16  # 小batch_size，快速迭代（调试用）
+  num_epochs: 3   # 少量epoch，快速测试（调试用）
+  learning_rate: 0.001
+  grad_clip: 5.0
+  teacher_forcing_ratio: 0.5  # Teacher Forcing 比例
+  early_stopping_patience: 3  # 减小patience，快速停止（调试用）
+  save_dir: "checkpoints_debug"  # 单独的检查点目录，避免覆盖正式模型
+  log_interval: 10  # 更频繁的日志输出（调试用）
+  eval_interval: 50  # 更频繁的验证（调试用）
+  # 多GPU和混合精度配置（调试时通常禁用）
+  use_ddp: false  # 调试时禁用分布式训练，单GPU更简单
+  use_amp: false  # 调试时禁用混合精度，避免复杂性
+  num_workers: 2  # 减少数据加载进程，避免资源竞争（调试用）
+  pin_memory: true  # 固定内存，加速数据传输
+
+# 解码配置
+decoding:
+  strategy: "beam_search"  # greedy 或 beam_search
+  beam_size: 3  # 减小束大小，加快解码（调试用）
+  max_length: 50  # 减小最大解码长度（调试用）
+  length_penalty: 0.6
+
+# 设备配置
+device: "cuda"  # cuda 或 cpu
+world_size: 1  # 调试时使用单GPU
+dist_backend: "nccl"  # 分布式后端
+
+# 随机种子
+seed: 42
+
